@@ -1,26 +1,24 @@
-use leptos::*;
-use crate::services::supabase::get_cabins;
+use crate::services::supabase::{all_cabins_query, AllCabinsKey};
 use crate::ui::cabin_row::CabinRow;
+use leptos::*;
 
 #[component]
 pub fn CabinTable() -> impl IntoView {
-  let get_cabins_action = create_action(|(): &_| {
-        async move {get_cabins().await}
-    });
+    let query = all_cabins_query().use_query(|| AllCabinsKey);
+    let data = query.data;
 
-    let data = get_cabins_action.value();
-
-    let cabin = move || data.with(|cabin| match cabin {
-        Some(cabin) => match cabin{
-            Ok(cabin) => cabin.into_iter().map(|cabin| view! { <CabinRow cabin=cabin.clone()/> }).collect_view(),
-            Err(err) => view! { <p>{err.to_string()}</p> }.into_view(),
-        },
-        None => view! { <p>"No cabin found"</p> }.into_view(),
-    });
-
-    create_effect(move |_|{
-        get_cabins_action.dispatch(());
-    });
+    let cabin = move || {
+        data.with(|cabin| match cabin {
+            Some(cabin) => match cabin {
+                Ok(cabin) => cabin
+                    .into_iter()
+                    .map(|cabin| view! { <CabinRow cabin=cabin.clone()/> })
+                    .collect_view(),
+                Err(err) => view! { <p>{err.to_string()}</p> }.into_view(),
+            },
+            None => view! { <p>"No cabin found"</p> }.into_view(),
+        })
+    };
 
     view! {
         <div class="border border-solid border-[var(--color-grey-200)] text-[1.4rem] bg-[var(--color-grey-0)] rounded-[7px] overflow-hidden">
@@ -32,7 +30,7 @@ pub fn CabinTable() -> impl IntoView {
                 <div>"Discount"</div>
                 <div></div>
             </header>
-            {cabin}
+            <Suspense fallback=move || view! { <p>"Loading..."</p> }>{cabin}</Suspense>
         </div>
     }
 }

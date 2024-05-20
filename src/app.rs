@@ -6,11 +6,16 @@ use crate::{
     ui::app_layout::AppLayout,
 };
 use leptos::*;
+use leptos_query::*;
+use leptos_query_devtools::LeptosQueryDevtools;
 use leptos_router::*;
 
 #[component]
 pub fn App() -> impl IntoView {
+    provide_query_client();
+
     view! {
+        <LeptosQueryDevtools/>
         <Router>
             <Routes>
                 <Route path="/" view=AppLayout>
