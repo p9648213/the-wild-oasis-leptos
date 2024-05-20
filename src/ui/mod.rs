@@ -1,5 +1,7 @@
 pub mod app_layout;
 pub mod button;
+pub mod cabin_row;
+pub mod cabin_table;
 pub mod header;
 pub mod heading;
 pub mod logo;

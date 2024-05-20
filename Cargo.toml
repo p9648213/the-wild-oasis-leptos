@@ -9,6 +9,9 @@ leptos_meta = { version = "0.6.11", features = ["csr"] }
 leptos_router = { version = "0.6.11", features = ["csr"] }
 log = "0.4.21"
 gloo-net = { version = "0.5.0", features = ["http"] }
+serde = { version = "1.0", features = ["derive"] }
+serde_json = { version = "1.0", default-features = false, features = ["alloc"] }
+
 
 # dependencies for client (enable when csr or hydrate set)
 wasm-bindgen = { version = "0.2.92" }
@@ -17,3 +20,5 @@ console_error_panic_hook = { version = "0.1.7" }
 tailwind_fuse = { version = "0.3.0", features = ["variant"] }
 leptos_icons = "0.3.1"
 icondata = "0.3.1"
+postgrest = "1.6.0"
+num-format = "0.4.0"
