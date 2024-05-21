@@ -1,3 +1,4 @@
+use crate::services::api_cabins::{all_cabins_query, AllCabinsKey};
 use crate::{
     pages::{
         account::Account, bookings::Bookings, cabins::Cabins, dashboard::Dashboard, login::Login,
@@ -10,10 +11,20 @@ use leptos_query::*;
 use leptos_query_devtools::LeptosQueryDevtools;
 use leptos_router::*;
 use leptos_toaster::*;
+use leptos_use::use_window_focus;
 
 #[component]
 pub fn App() -> impl IntoView {
     provide_query_client();
+
+    let query = all_cabins_query().use_query(|| AllCabinsKey);
+    let window_focus = use_window_focus();
+
+    create_effect(move |_| {
+        if window_focus.get() {
+            (query.refetch)()
+        }
+    });
 
     view! {
         <Toaster position=ToasterPosition::TopRight expand=true>
