@@ -38,7 +38,7 @@ pub async fn get_cabins() -> Result<Vec<Cabin>, String> {
 pub async fn delete_cabin(id: u32) -> Result<String, String>{
     let client = create_client();
 
-    let resp = client.from("cabinss").delete().eq("id", id.to_string()).execute().await;
+    let resp = client.from("cabins").delete().eq("id", id.to_string()).execute().await;
 
     match resp {
         Ok(response) => {

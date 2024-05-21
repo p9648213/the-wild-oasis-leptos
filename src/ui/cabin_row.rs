@@ -4,11 +4,21 @@ use crate::services::{
     helpers::format_currency,
 };
 use leptos::*;
-use leptoaster::*;
+use leptos_toaster::*;
+use crate::ui::toast::{Toast,ToastType};
 
 #[component]
 pub fn CabinRow(cabin: Cabin) -> impl IntoView {
-    let toaster = expect_toaster();
+    let toast_context = expect_context::<Toasts>();
+
+    let create_toast = move |msg: &'static str, toast_type: ToastType| {
+        let toast_id = ToastId::new();
+        toast_context.toast(
+            view! { <Toast msg=msg toast_type=toast_type/> },
+            Some(toast_id),
+            None
+        );
+    };
 
     let delete_cabin_action = create_action(|input: &u32| {
         let id = input.clone();
@@ -38,15 +48,11 @@ pub fn CabinRow(cabin: Cabin) -> impl IntoView {
         match delete_error() {
             Ok(res) => {
                 match res {
-                    Some(_) => {
-                        toaster.success("Delete cabin successfully")
-                    },
+                    Some(_) => create_toast("Cabin delete successfully", ToastType::Success),
                     None => (),
                 }
             },
-            Err(_) => {
-                toaster.error("Failed to delete cabin")
-            }
+            Err(_) => create_toast("Failed to delete cabin", ToastType::Error)
         }
     });
 

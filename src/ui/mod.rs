@@ -9,3 +9,4 @@ pub mod main_nav;
 pub mod row;
 pub mod sidebar;
 pub mod spinner;
+pub mod toast;
