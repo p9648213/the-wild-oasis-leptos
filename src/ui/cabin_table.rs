@@ -1,5 +1,5 @@
-use crate::services::supabase::{all_cabins_query, AllCabinsKey};
-use crate::ui::cabin_row::CabinRow;
+use crate::services::api_cabins::{all_cabins_query, AllCabinsKey};
+use crate::ui::{cabin_row::CabinRow, spinner::Spinner};
 use leptos::*;
 
 #[component]
@@ -10,13 +10,19 @@ pub fn CabinTable() -> impl IntoView {
     let cabin = move || {
         data.with(|cabin| match cabin {
             Some(cabin) => match cabin {
-                Ok(cabin) => cabin
-                    .into_iter()
-                    .map(|cabin| view! { <CabinRow cabin=cabin.clone()/> })
-                    .collect_view(),
+                Ok(cabin) => {
+                    if cabin.is_empty() {
+                        view! { <p>"No cabin found"</p> }.into_view()
+                    } else {
+                        cabin
+                            .into_iter()
+                            .map(|cabin| view! { <CabinRow cabin=cabin.clone()/> })
+                            .collect_view()
+                    }
+                }
                 Err(err) => view! { <p>{err.to_string()}</p> }.into_view(),
             },
-            None => view! { <p>"No cabin found"</p> }.into_view(),
+            None => view! { <Spinner/> }.into_view(),
         })
     };
 
@@ -30,7 +36,7 @@ pub fn CabinTable() -> impl IntoView {
                 <div>"Discount"</div>
                 <div></div>
             </header>
-            <Suspense fallback=move || view! { <p>"Loading..."</p> }>{cabin}</Suspense>
+            {cabin}
         </div>
     }
 }

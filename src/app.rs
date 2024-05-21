@@ -5,6 +5,7 @@ use crate::{
     },
     ui::app_layout::AppLayout,
 };
+use leptoaster::*;
 use leptos::*;
 use leptos_query::*;
 use leptos_query_devtools::LeptosQueryDevtools;
@@ -13,9 +14,11 @@ use leptos_router::*;
 #[component]
 pub fn App() -> impl IntoView {
     provide_query_client();
+    provide_toaster();
 
     view! {
         <LeptosQueryDevtools/>
+        <Toaster stacked=false/>
         <Router>
             <Routes>
                 <Route path="/" view=AppLayout>
