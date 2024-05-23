@@ -184,6 +184,7 @@ img {
   --image-opacity: 90%;
   */
 
+/* NAVLINK */
 .navlink:link,
 .navlink:visited {
   display: flex;
@@ -222,6 +223,7 @@ img {
   stroke: var(--color-brand-600);
 }
 
+/* SPINNER */
 @keyframes rotate {
   to {
     transform: rotate(1turn);
@@ -234,4 +236,71 @@ img {
     conic-gradient(#0000 30%, var(--color-brand-600));
   -webkit-mask: radial-gradient(farthest-side, #0000 calc(100% - 10px), #000 0);
   animation: rotate 1.5s infinite linear;
+}
+
+/* CABIN FORM */
+.form_container {
+  display: grid;
+  align-items: center;
+  grid-template-columns: 24rem 1fr 1.2fr;
+  gap: 2.4rem;
+  padding: 1.2rem 0;
+}
+
+.form_container:first-child {
+  padding-top: 0;
+}
+
+.form_container:last-child {
+  padding-bottom: 0;
+}
+
+.form_container:not(:last-child) {
+  border-bottom: 1px solid var(--color-grey-100);
+}
+
+.form_container:has(button) {
+  display: flex;
+  justify-content: flex-end;
+  gap: 1.2rem;
+}
+
+/* FILE INPUT */
+.file_input {
+  font-size: 1.4rem;
+  border-radius: var(--border-radius-sm);
+}
+
+.file_input::-webkit-file-upload-button {
+  font: inherit;
+  font-weight: 500;
+  padding: 0.8rem 1.2rem;
+  margin-right: 1.2rem;
+  border-radius: var(--border-radius-sm);
+  border: none;
+  color: var(--color-brand-50);
+  background-color: var(--color-brand-600);
+  cursor: pointer;
+  transition: color 0.2s, background-color 0.2s;
+}
+
+.file_input::-webkit-file-upload-button:hover {
+  background-color: var(--color-brand-700);
+}
+
+.file_input::-moz-file-upload-button {
+  font: inherit;
+  font-weight: 500;
+  padding: 0.8rem 1.2rem;
+  margin-right: 1.2rem;
+  border-radius: var(--border-radius-sm);
+  border: none;
+  color: var(--color-brand-50);
+  background-color: var(--color-brand-600);
+  cursor: pointer;
+  transition: color 0.2s, background-color 0.2s;
+}
+
+.file_input::-moz-file-upload-button:hover {
+  background-color: var(--color-brand-700);
 }

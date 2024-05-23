@@ -1,24 +1,31 @@
 use leptos::*;
 use tailwind_fuse::tw_merge;
+use web_sys::MouseEvent;
 
-enum ButtonVariant {
+pub enum ButtonVariant {
     Primary,
     Secondary,
     Danger,
 }
 
-enum ButtonSize {
+pub enum ButtonSize {
     Small,
     Medium,
     Large,
 }
 
 #[component]
-pub fn Button(
+pub fn Button<F>(
     children: Children,
     #[prop(default = ButtonVariant::Primary)] variant: ButtonVariant,
     #[prop(default = ButtonSize::Medium)] size: ButtonSize,
-) -> impl IntoView {
+    #[prop(default = "submit")] button_type: &'static str,
+    #[prop(default = false)] disabled: bool,
+    on_click: F,
+) -> impl IntoView
+where
+    F: Fn(MouseEvent) + 'static,
+{
     let variant_classes = match variant {
         ButtonVariant::Primary => "text-[var(--color-brand-50)] bg-[var(--color-brand-600)] hover:bg-[var(--color-brand-700)]",
         ButtonVariant::Secondary => "text-[var(--color-grey-600))] bg-[var(--color-grey-0))] hover:bg-[var(--color-grey-50)] border border-solid border-[var(--color-grey-200)]",
@@ -32,9 +39,18 @@ pub fn Button(
     };
 
     view! {
-        <button class=tw_merge!(
-            "border-none rounded-[var(--border-radius-sm)] shadow-[var(--shadow-sm)]",
-            variant_classes, size_classes
-        )>{children()}</button>
+        <button
+            on:click=on_click
+            class=tw_merge!(
+                "border-none rounded-[var(--border-radius-sm)] shadow-[var(--shadow-sm)]",
+                variant_classes, size_classes
+            )
+
+            type=button_type
+            disabled=disabled
+        >
+
+            {children()}
+        </button>
     }
 }
