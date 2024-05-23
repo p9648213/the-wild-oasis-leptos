@@ -76,7 +76,7 @@ pub fn CabinRow(cabin: Cabin) -> impl IntoView {
                 {format_currency(cabin.discount)}
             </div>
 
-            <button on:click=move |_| onDeleteCabin(cabin.id) disabled=loading>
+            <button on:click=move |_| onDeleteCabin(cabin.id.unwrap_or(0)) disabled=loading>
                 "Delete"
             </button>
         </div>

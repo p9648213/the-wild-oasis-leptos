@@ -20,7 +20,7 @@ pub fn Button<F>(
     #[prop(default = ButtonVariant::Primary)] variant: ButtonVariant,
     #[prop(default = ButtonSize::Medium)] size: ButtonSize,
     #[prop(default = "submit")] button_type: &'static str,
-    #[prop(default = false)] disabled: bool,
+    disabled: ReadSignal<bool>,
     on_click: F,
 ) -> impl IntoView
 where
@@ -47,7 +47,7 @@ where
             )
 
             type=button_type
-            disabled=disabled
+            disabled=move || disabled
         >
 
             {children()}

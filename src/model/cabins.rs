@@ -2,8 +2,10 @@ use serde::{Deserialize, Serialize};
 
 #[derive(Serialize, Deserialize, Clone, Debug)]
 pub struct Cabin {
-    pub id: u32,
-    pub created_at: String,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub id: Option<u32>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub created_at: Option<String>,
     pub name: String,
     #[serde(rename = "maxCapacity")]
     pub max_capacity: u32,
