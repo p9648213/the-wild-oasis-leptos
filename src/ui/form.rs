@@ -8,7 +8,12 @@ pub enum FormType {
 }
 
 #[component]
-pub fn Form<F>(form_type: FormType, children: Children, on_submit: F) -> impl IntoView
+pub fn Form<F>(
+    form_type: FormType,
+    children: Children,
+    on_submit: F,
+    form_ref: NodeRef<html::Form>,
+) -> impl IntoView
 where
     F: Fn(SubmitEvent) + 'static,
 {
@@ -18,7 +23,11 @@ where
     };
 
     view! {
-        <form on:submit=on_submit class=tw_merge!("overflow-hidden text-[1.4rem]", form_style)>
+        <form
+            node_ref=form_ref
+            on:submit=on_submit
+            class=tw_merge!("overflow-hidden text-[1.4rem]", form_style)
+        >
             {children()}
         </form>
     }

@@ -1,3 +1,5 @@
+use std::borrow::Borrow;
+
 use crate::model::cabins::Cabin;
 use crate::services::api_cabins::create_cabin;
 use crate::ui::{
@@ -11,10 +13,32 @@ use crate::ui::{
 use crate::ui::toast::{Toast,ToastType};
 use leptos_toaster::*;
 use leptos::*;
-use web_sys::SubmitEvent;
+use web_sys::{File, SubmitEvent};
+
+#[derive(Clone)]
+pub struct CabinAction {
+    pub cabin: Cabin,
+    pub image_file: Option<File>
+}
 
 #[component]
 pub fn CreateCabinForm() -> impl IntoView {
+    let cabin_name = create_rw_signal(String::from(""));
+    let max_capacity = create_rw_signal(String::from(""));
+    let regular_price = create_rw_signal(String::from(""));
+    let discount = create_rw_signal(String::from(""));
+    let description = create_rw_signal(String::from(""));
+    let image = create_rw_signal::<Option<File>>(None);
+
+    let cabin_name_error = create_rw_signal::<Option<String>>(None);
+    let max_capacity_error = create_rw_signal::<Option<String>>(None);
+    let regular_price_error = create_rw_signal::<Option<String>>(None);
+    let discount_error = create_rw_signal::<Option<String>>(None);
+    let description_error = create_rw_signal::<Option<String>>(None);
+    let image_error = create_rw_signal::<Option<String>>(None);
+
+    let form_element: NodeRef<html::Form> = create_node_ref();
+
     let toast_context = expect_context::<Toasts>();
 
     let create_toast = move |msg: &'static str, toast_type: ToastType| {
@@ -26,9 +50,9 @@ pub fn CreateCabinForm() -> impl IntoView {
         );
     };
 
-    let create_cabin_action = create_action(|input: &Cabin| {
-        let cabin = input.clone();
-        async move {create_cabin(cabin).await}
+    let create_cabin_action = create_action(move |input: &CabinAction| {
+        let input = input.clone();
+        async move {create_cabin(input).await}
     });
 
     let loading = create_cabin_action.pending();
@@ -46,18 +70,8 @@ pub fn CreateCabinForm() -> impl IntoView {
         }
     });
 
-    let cabin_name = create_rw_signal(String::from(""));
-    let max_capacity = create_rw_signal(String::from("0"));
-    let regular_price = create_rw_signal(String::from("0"));
-    let discount = create_rw_signal(String::from("0"));
-    let description = create_rw_signal(String::from(""));
-
-    let cabin_name_error = create_rw_signal::<Option<String>>(None);
-    let max_capacity_error = create_rw_signal::<Option<String>>(None);
-    let regular_price_error = create_rw_signal::<Option<String>>(None);
-    let discount_error = create_rw_signal::<Option<String>>(None);
-    let description_error = create_rw_signal::<Option<String>>(None);
-
+    
+    
     let on_submit = move |ev: SubmitEvent| {
         ev.prevent_default();
 
@@ -140,6 +154,8 @@ pub fn CreateCabinForm() -> impl IntoView {
             return description_error.set(Some(String::from("Description is required")));
         }
 
+        let image_file = image.get();
+
         let cabin = Cabin {
             created_at: None,
             id: None,
@@ -148,18 +164,31 @@ pub fn CreateCabinForm() -> impl IntoView {
             max_capacity: max_capacity_value,
             discount: discount_value,
             regular_price: regular_price_value,
-            image: Some("".to_string()),
+            image: match &image_file {
+                Some(image_file) => Some(image_file.name().replace("/", "")),
+                None => None,
+            },
         };
 
-        create_cabin_action.dispatch(cabin)
+        let cabin_action_input = CabinAction {
+            cabin,
+            image_file
+        };
+
+        create_cabin_action.dispatch(cabin_action_input)
     };
 
     let clearForm = move || {
+        match form_element.get() {
+            Some(form) => form.reset(),
+            None => (),
+        }
         cabin_name.set("".to_string());
-        max_capacity.set("0".to_string());
-        regular_price.set("0".to_string());
-        discount.set("0".to_string());
+        max_capacity.set("".to_string());
+        regular_price.set("".to_string());
+        discount.set("".to_string());
         description.set("".to_string());
+        image.set(None);
     };
 
     create_effect(move |_| {
@@ -178,6 +207,9 @@ pub fn CreateCabinForm() -> impl IntoView {
         if description.get().is_empty() == false {
             description_error.set(None)
         }
+        if image.get().is_none() {
+            image_error.set(None)
+        }
     });
 
     create_effect(move |_| {
@@ -185,8 +217,12 @@ pub fn CreateCabinForm() -> impl IntoView {
             Ok(res) => {
                 match res {
                     Some(_) => {
-                        create_toast("New cabin succesfully created", ToastType::Success);
-                        clearForm()
+                        match form_element.get(){
+                            Some(form) => form.reset(),
+                            None => ()
+                        };
+                        clearForm();
+                        create_toast("New cabin succesfully created", ToastType::Success)
                     },
                     None => (),
                 }
@@ -196,7 +232,7 @@ pub fn CreateCabinForm() -> impl IntoView {
     });
 
     view! {
-        <Form form_type=FormType::NoneModal on_submit=on_submit>
+        <Form form_ref=form_element form_type=FormType::NoneModal on_submit=on_submit>
             <FormRow label="Cabin name" error=cabin_name_error id="name">
                 <Input input_type="text" id="name" disabled=loading value=cabin_name/>
             </FormRow>
@@ -217,8 +253,8 @@ pub fn CreateCabinForm() -> impl IntoView {
                 <TextArea id="description" disabled=loading value=description/>
             </FormRow>
 
-            <FormRow label="Cabin photo" id="image">
-                <FileInput id="image" disabled=loading/>
+            <FormRow label="Cabin photo" error=image_error id="image">
+                <FileInput id="image" disabled=loading value=image error=image_error/>
             </FormRow>
 
             <FormRow label="" id="submit_button">

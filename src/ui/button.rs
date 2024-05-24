@@ -47,7 +47,7 @@ where
             )
 
             type=button_type
-            disabled=move || disabled
+            disabled=disabled
         >
 
             {children()}

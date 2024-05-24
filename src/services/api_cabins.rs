@@ -1,3 +1,4 @@
+use crate::ui::create_cabin_form::CabinAction;
 use leptos_query::*;
 use serde_json::Error;
 use crate::model::cabins::Cabin;
@@ -61,10 +62,14 @@ pub async fn delete_cabin(id: u32) -> Result<String, String>{
     }
 }
 
-pub async fn create_cabin(cabin:Cabin)-> Result<String, String>{
+pub async fn create_cabin(data: CabinAction)-> Result<String, String>{
+    let cabin = data.cabin;
+    let image = data.image_file;
+
     let client = create_client();
     let cabin_json = serde_json::to_string(&cabin);
-    match cabin_json {
+
+    let create_cabin_result = match cabin_json {
         Ok(cabin_json) => {
             let resp = client.from("cabins").insert(&cabin_json).execute().await;
             match resp {
@@ -88,6 +93,12 @@ pub async fn create_cabin(cabin:Cabin)-> Result<String, String>{
             }
         },
         Err(err) => Err(err.to_string()),
+    };
+
+    if let Some(image_file) = image{
+        Ok("OK".to_string())
+    }else {
+        create_cabin_result
     }
 }
 
