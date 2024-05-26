@@ -1,7 +1,6 @@
-use std::borrow::Borrow;
-
 use crate::model::cabins::Cabin;
 use crate::services::api_cabins::create_cabin;
+use crate::services::supabase::SUPABASE_STORAGE_IMAGE_URL;
 use crate::ui::{
     button::Button,
     file_input::FileInput,
@@ -165,7 +164,7 @@ pub fn CreateCabinForm() -> impl IntoView {
             discount: discount_value,
             regular_price: regular_price_value,
             image: match &image_file {
-                Some(image_file) => Some(image_file.name().replace("/", "")),
+                Some(image_file) => Some(format!("{}/{}", SUPABASE_STORAGE_IMAGE_URL, image_file.name().replace("/", ""))),
                 None => None,
             },
         };

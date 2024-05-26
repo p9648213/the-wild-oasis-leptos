@@ -1,8 +1,12 @@
 use crate::ui::create_cabin_form::CabinAction;
 use leptos_query::*;
 use serde_json::Error;
+use wasm_bindgen::JsValue;
 use crate::model::cabins::Cabin;
 use crate::services::supabase::create_client;
+use web_sys::File;
+use reqwest::multipart::{Form, Part};
+use wasm_bindgen_futures::JsFuture;
 
 #[derive(Debug, Clone, Hash, Eq, PartialEq)]
 pub struct AllCabinsKey;
@@ -80,7 +84,9 @@ pub async fn create_cabin(data: CabinAction)-> Result<String, String>{
                             let body = response.text().await;
                             match body {
                                 Ok(text) => {
-                                    all_cabins_query().invalidate_query(AllCabinsKey);
+                                    if let None = image {
+                                        all_cabins_query().invalidate_query(AllCabinsKey);
+                                    }
                                     Ok(text)
                                 },
                                 Err(err) => Err(err.to_string()),
@@ -96,9 +102,48 @@ pub async fn create_cabin(data: CabinAction)-> Result<String, String>{
     };
 
     if let Some(image_file) = image{
-        Ok("OK".to_string())
-    }else {
+        let res = upload_image(image_file).await;
+        let res = match res {
+            Ok(_) => Ok("Image upload successfully".to_string()),
+            Err(_) => Err("Failed to upload image".to_string()),
+        };
+        all_cabins_query().invalidate_query(AllCabinsKey);
+        res
+    } else {
         create_cabin_result
+    }
+}
+
+pub async fn upload_image(file: File) -> Result<String, String> {
+    let array_buffer_promise: JsFuture = file
+        .array_buffer()
+        .into();
+
+    let array_buffer: JsValue = array_buffer_promise
+        .await
+        .expect("Could not get ArrayBuffer from file");
+
+    let file_u8 = js_sys::Uint8Array
+        ::new(&array_buffer)
+        .to_vec();
+
+    let client = reqwest::Client::new();
+    let form= Form::new().part("file", Part::stream(file_u8).file_name(file.name())
+        .mime_str(&file.type_())
+        .map_err(|e| e.to_string())?);
+
+    let response = client
+        .post("http://localhost:3000/upload")
+        .multipart(form)
+        .send()
+        .await;
+
+    match response {
+        Ok(response) => {
+            let text = response.text().await.unwrap_or("".to_string());
+            Ok(text)
+        },
+        Err(err) => Err(err.to_string()),
     }
 }
 
