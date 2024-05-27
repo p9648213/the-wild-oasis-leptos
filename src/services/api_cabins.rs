@@ -71,8 +71,6 @@ pub async fn create_cabin(data: CabinAction, edit: bool)-> Result<String, String
     let cabin = data.cabin;
     let image = data.image_file;
 
-    logging::log!("{:#?}", cabin);
-
     let client = create_client();
     let cabin_json = serde_json::to_string(&cabin);
 
