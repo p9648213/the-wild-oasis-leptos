@@ -1,4 +1,5 @@
 use crate::ui::create_cabin_form::CabinAction;
+use js_sys::Boolean;
 use leptos_query::*;
 use serde_json::Error;
 use wasm_bindgen::JsValue;
@@ -66,7 +67,7 @@ pub async fn delete_cabin(id: u32) -> Result<String, String>{
     }
 }
 
-pub async fn create_cabin(data: CabinAction)-> Result<String, String>{
+pub async fn create_cabin(data: CabinAction, edit: bool)-> Result<String, String>{
     let cabin = data.cabin;
     let image = data.image_file;
 

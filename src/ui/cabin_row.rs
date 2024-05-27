@@ -5,10 +5,12 @@ use crate::services::{
 };
 use leptos::*;
 use leptos_toaster::*;
-use crate::ui::toast::{Toast,ToastType};
+use crate::ui::{toast::{Toast,ToastType}, create_cabin_form::CreateCabinForm};
 
 #[component]
 pub fn CabinRow(cabin: Cabin) -> impl IntoView {
+    let (show_edit_form, set_show_edit_form) = create_signal(false);
+
     let toast_context = expect_context::<Toasts>();
 
     let create_toast = move |msg: &'static str, toast_type: ToastType| {
@@ -60,7 +62,7 @@ pub fn CabinRow(cabin: Cabin) -> impl IntoView {
         <div class="grid grid-cols-[0.6fr_1.8fr_2.2fr_1fr_1fr_1fr] gap-x-[2.4rem] items-center p-[1.4rem_2.4rem] [&:not(:last-child)]:border-b [&:not(:last-child)]:border-solid [&:not(:last-child)]:border-[var(--color-grey-100)]">
             <img
                 class="block w-[6.4rem] aspect-[3/2] object-cover object-center scale-[1.5] translate-x-[-7px]"
-                src=cabin.image
+                src=cabin.clone().image
                 alt=&cabin.name
             />
 
@@ -76,9 +78,21 @@ pub fn CabinRow(cabin: Cabin) -> impl IntoView {
                 {format_currency(cabin.discount)}
             </div>
 
-            <button on:click=move |_| onDeleteCabin(cabin.id.unwrap_or(0)) disabled=loading>
-                "Delete"
-            </button>
+            <div class="flex gap-4">
+                <button
+                    on:click=move |_| set_show_edit_form.update(|show| *show = !*show)
+                    disabled=loading
+                >
+                    "Edit"
+                </button>
+
+                <button on:click=move |_| onDeleteCabin(cabin.id.unwrap_or(0)) disabled=loading>
+                    "Delete"
+                </button>
+            </div>
         </div>
+        <Show when=move || show_edit_form.get() == true fallback=move || view! {}>
+            <CreateCabinForm cabin=Some(cabin.clone())/>
+        </Show>
     }
 }

@@ -20,13 +20,43 @@ pub struct CabinAction {
     pub image_file: Option<File>
 }
 
+struct DefaultCabinValue {
+    cabin_name: String,
+    max_capacity: String,
+    regular_price: String,
+    discount: String,
+    description: String
+}
+
 #[component]
-pub fn CreateCabinForm() -> impl IntoView {
-    let cabin_name = create_rw_signal(String::from(""));
-    let max_capacity = create_rw_signal(String::from(""));
-    let regular_price = create_rw_signal(String::from(""));
-    let discount = create_rw_signal(String::from(""));
-    let description = create_rw_signal(String::from(""));
+pub fn CreateCabinForm(#[prop(default = None)] cabin: Option<Cabin>) -> impl IntoView {
+    let is_edit_session = match cabin {
+        Some(_) => true,
+        None => false,
+    };
+
+    let default_value = match cabin {
+        Some(cabin_value) => DefaultCabinValue{
+            cabin_name: cabin_value.name,
+            max_capacity: cabin_value.max_capacity.to_string(),
+            description: cabin_value.description.unwrap_or_default(),
+            discount: cabin_value.discount.to_string(),
+            regular_price: cabin_value.regular_price.to_string()
+        },
+        None => DefaultCabinValue{
+            cabin_name: String::from(""),
+            max_capacity: String::from(""),
+            description: String::from(""),
+            discount: String::from(""),
+            regular_price: String::from("")
+        },
+    };
+
+    let cabin_name = create_rw_signal(default_value.cabin_name);
+    let max_capacity = create_rw_signal(default_value.max_capacity);
+    let regular_price = create_rw_signal(default_value.regular_price);
+    let discount = create_rw_signal(default_value.discount);
+    let description = create_rw_signal(default_value.description);
     let image = create_rw_signal::<Option<File>>(None);
 
     let cabin_name_error = create_rw_signal::<Option<String>>(None);
@@ -50,8 +80,8 @@ pub fn CreateCabinForm() -> impl IntoView {
     };
 
     let create_cabin_action = create_action(move |input: &CabinAction| {
-        let input = input.clone();
-        async move {create_cabin(input).await}
+        let cabin_data = input.clone();
+        async move {create_cabin(cabin_data, is_edit_session).await}
     });
 
     let loading = create_cabin_action.pending();
@@ -266,7 +296,7 @@ pub fn CreateCabinForm() -> impl IntoView {
                     "Cancel"
                 </Button>
                 <Button on_click=move |_| {} disabled=loading>
-                    "Add cabin"
+                    {if is_edit_session == true { "Edit cabin" } else { "Create new cabin" }}
                 </Button>
             </FormRow>
         </Form>
