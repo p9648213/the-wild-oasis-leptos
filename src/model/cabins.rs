@@ -13,5 +13,6 @@ pub struct Cabin {
     pub regular_price: u32,
     pub discount: u32,
     pub description: Option<String>,
+    #[serde(skip_serializing_if = "Option::is_none")]
     pub image: Option<String>,
 }

@@ -30,16 +30,16 @@ struct DefaultCabinValue {
 
 #[component]
 pub fn CreateCabinForm(#[prop(default = None)] cabin: Option<Cabin>) -> impl IntoView {
-    let is_edit_session = match cabin {
+    let is_edit_session = match &cabin {
         Some(_) => true,
         None => false,
     };
 
-    let default_value = match cabin {
+    let default_value = match &cabin {
         Some(cabin_value) => DefaultCabinValue{
-            cabin_name: cabin_value.name,
+            cabin_name: cabin_value.name.clone(),
             max_capacity: cabin_value.max_capacity.to_string(),
-            description: cabin_value.description.unwrap_or_default(),
+            description: cabin_value.description.clone().unwrap_or_default(),
             discount: cabin_value.discount.to_string(),
             regular_price: cabin_value.regular_price.to_string()
         },
@@ -187,7 +187,10 @@ pub fn CreateCabinForm(#[prop(default = None)] cabin: Option<Cabin>) -> impl Int
 
         let cabin = Cabin {
             created_at: None,
-            id: None,
+            id: match is_edit_session {
+                true => Some(cabin.clone().unwrap().id.unwrap()),
+                false => None,
+            },
             name: cabin_name.get(),
             description: Some(description.get()),
             max_capacity: max_capacity_value,
@@ -251,7 +254,10 @@ pub fn CreateCabinForm(#[prop(default = None)] cabin: Option<Cabin>) -> impl Int
                             None => ()
                         };
                         clearForm();
-                        create_toast("New cabin succesfully created", ToastType::Success)
+                        match is_edit_session {
+                            true => create_toast("Cabin succesfully edited", ToastType::Success),
+                            false => create_toast("New cabin succesfully created", ToastType::Success),
+                        }
                     },
                     None => (),
                 }

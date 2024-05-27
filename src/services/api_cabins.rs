@@ -1,5 +1,5 @@
 use crate::ui::create_cabin_form::CabinAction;
-use js_sys::Boolean;
+use leptos::logging;
 use leptos_query::*;
 use serde_json::Error;
 use wasm_bindgen::JsValue;
@@ -71,12 +71,17 @@ pub async fn create_cabin(data: CabinAction, edit: bool)-> Result<String, String
     let cabin = data.cabin;
     let image = data.image_file;
 
+    logging::log!("{:#?}", cabin);
+
     let client = create_client();
     let cabin_json = serde_json::to_string(&cabin);
 
     let create_cabin_result = match cabin_json {
         Ok(cabin_json) => {
-            let resp = client.from("cabins").insert(&cabin_json).execute().await;
+            let resp = match edit {
+                true => client.from("cabins").update(&cabin_json).eq("id", &cabin.id.unwrap_or_default().to_string()).execute().await,
+                false => client.from("cabins").insert(&cabin_json).execute().await,
+            };
             match resp {
                 Ok(response) => {
                     let convert_repsonse_err = response.error_for_status();
