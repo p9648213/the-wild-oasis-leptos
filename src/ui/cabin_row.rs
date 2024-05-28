@@ -1,60 +1,69 @@
+use crate::hooks::use_create_cabin::use_create_cabin;
+use crate::hooks::use_delete_cabin::use_delete_cabin;
+use crate::hooks::use_toast::use_toast;
 use crate::model::cabins::Cabin;
-use crate::services::{
-    api_cabins::delete_cabin,
-    helpers::format_currency,
-};
+use crate::services::helpers::format_currency;
+use crate::ui::create_cabin_form::CabinAction;
+use crate::ui::{create_cabin_form::CreateCabinForm, toast::ToastType};
+use icondata::{HiPencilSolidLg, HiSquare2StackSolidLg, HiTrashSolidLg};
 use leptos::*;
-use leptos_toaster::*;
-use crate::ui::{toast::{Toast,ToastType}, create_cabin_form::CreateCabinForm};
+use leptos_icons::Icon;
 
 #[component]
 pub fn CabinRow(cabin: Cabin) -> impl IntoView {
     let (show_edit_form, set_show_edit_form) = create_signal(false);
 
-    let toast_context = expect_context::<Toasts>();
+    let create_toast = use_toast();
 
-    let create_toast = move |msg: &'static str, toast_type: ToastType| {
-        let toast_id = ToastId::new();
-        toast_context.toast(
-            view! { <Toast msg=msg toast_type=toast_type/> },
-            Some(toast_id),
-            None
-        );
+    let (deleting, delete_error, delete_cabin_by_id) = use_delete_cabin();
+    let (creating, create_cabin_error, create_cabin) = use_create_cabin(false);
+
+    let loading = move || {
+        if deleting() == true {
+            return true;
+        } else {
+            if creating() == true {
+                return true;
+            }
+            false
+        }
     };
 
-    let delete_cabin_action = create_action(|input: &u32| {
-        let id = input.clone();
-        async move {delete_cabin(id).await}
-    });
+    let cabin_clone = cabin.clone();
 
-    let loading = delete_cabin_action.pending();
-    let data = delete_cabin_action.value();
+    let create_duplicate_cabin = move |_| {
+        let new_cabin = Cabin {
+            id: None,
+            created_at: None,
+            image: Some(cabin_clone.clone().image.unwrap_or_default()),
+            description: cabin_clone.clone().description,
+            discount: cabin_clone.discount,
+            max_capacity: cabin_clone.max_capacity,
+            regular_price: cabin_clone.regular_price,
+            name: cabin_clone.clone().name,
+        };
 
-    let delete_error = 
-        move || data.with(|resp| {
-            match resp {
-                Some(resp) => match resp {
-                    Ok(msg) => Ok(Some(msg.clone())),
-                    Err(err) => Err(err.clone()),
-                },
-                None => Ok(None),
-            }
-        });
-    
-
-    let onDeleteCabin = move |id: u32| {
-        delete_cabin_action.dispatch(id)
+        create_cabin(CabinAction {
+            cabin: new_cabin,
+            image_file: None,
+        })
     };
 
     create_effect(move |_| {
         match delete_error() {
-            Ok(res) => {
-                match res {
-                    Some(_) => create_toast("Cabin delete successfully", ToastType::Success),
-                    None => (),
-                }
+            Ok(res) => match res {
+                Some(_) => create_toast("Cabin delete successfully", ToastType::Success),
+                None => (),
             },
-            Err(_) => create_toast("Failed to delete cabin", ToastType::Error)
+            Err(_) => create_toast("Failed to delete cabin", ToastType::Error),
+        };
+
+        match create_cabin_error() {
+            Ok(res) => match res {
+                Some(_) => create_toast("New cabin succesfully created", ToastType::Success),
+                None => (),
+            },
+            Err(_) => create_toast("Failed to add cabin", ToastType::Error),
         }
     });
 
@@ -80,14 +89,27 @@ pub fn CabinRow(cabin: Cabin) -> impl IntoView {
 
             <div class="flex gap-4">
                 <button
-                    on:click=move |_| set_show_edit_form.update(|show| *show = !*show)
+                    on:click=create_duplicate_cabin
                     disabled=loading
+                    class="focus:outline-none focus-visible:outline-none"
                 >
-                    "Edit"
+                    <Icon class="fill-slate-700" icon=HiSquare2StackSolidLg/>
                 </button>
 
-                <button on:click=move |_| onDeleteCabin(cabin.id.unwrap_or(0)) disabled=loading>
-                    "Delete"
+                <button
+                    on:click=move |_| set_show_edit_form.update(|show| *show = !*show)
+                    disabled=loading
+                    class="focus:outline-none focus-visible:outline-none"
+                >
+                    <Icon class="fill-slate-700" icon=HiPencilSolidLg/>
+                </button>
+
+                <button
+                    class="focus:outline-none focus-visible:outline-none"
+                    on:click=move |_| delete_cabin_by_id(cabin.id.unwrap_or(0))
+                    disabled=loading
+                >
+                    <Icon class="fill-slate-700" icon=HiTrashSolidLg/>
                 </button>
             </div>
         </div>

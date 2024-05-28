@@ -1,20 +1,19 @@
-use crate::ui::create_cabin_form::CabinAction;
-use leptos::logging;
-use leptos_query::*;
-use serde_json::Error;
-use wasm_bindgen::JsValue;
 use crate::model::cabins::Cabin;
 use crate::services::supabase::create_client;
-use web_sys::File;
+use crate::ui::create_cabin_form::CabinAction;
+use leptos_query::*;
 use reqwest::multipart::{Form, Part};
+use serde_json::Error;
+use wasm_bindgen::JsValue;
 use wasm_bindgen_futures::JsFuture;
+use web_sys::File;
 
 #[derive(Debug, Clone, Hash, Eq, PartialEq)]
 pub struct AllCabinsKey;
 
 pub async fn get_cabins() -> Result<Vec<Cabin>, String> {
     let client = create_client();
-    
+
     let resp = client.from("cabins").select("*").execute().await;
 
     match resp {
@@ -30,21 +29,26 @@ pub async fn get_cabins() -> Result<Vec<Cabin>, String> {
                                 Ok(cabins) => Ok(cabins),
                                 Err(err) => Err(err.to_string()),
                             }
-                        },
+                        }
                         Err(err) => Err(err.to_string()),
                     }
-                },
+                }
                 Err(err) => Err(err.to_string()),
             }
-        },
+        }
         Err(err) => Err(err.to_string()),
     }
 }
 
-pub async fn delete_cabin(id: u32) -> Result<String, String>{
+pub async fn delete_cabin(id: u32) -> Result<String, String> {
     let client = create_client();
 
-    let resp = client.from("cabins").delete().eq("id", id.to_string()).execute().await;
+    let resp = client
+        .from("cabins")
+        .delete()
+        .eq("id", id.to_string())
+        .execute()
+        .await;
 
     match resp {
         Ok(response) => {
@@ -56,18 +60,18 @@ pub async fn delete_cabin(id: u32) -> Result<String, String>{
                         Ok(text) => {
                             all_cabins_query().invalidate_query(AllCabinsKey);
                             Ok(text)
-                        },
+                        }
                         Err(err) => Err(err.to_string()),
                     }
-                },
-                Err(err) => Err(err.to_string())
-            } 
-        },
+                }
+                Err(err) => Err(err.to_string()),
+            }
+        }
         Err(err) => Err(err.to_string()),
     }
 }
 
-pub async fn create_cabin(data: CabinAction, edit: bool)-> Result<String, String>{
+pub async fn create_cabin(data: CabinAction, edit: bool) -> Result<String, String> {
     let cabin = data.cabin;
     let image = data.image_file;
 
@@ -77,7 +81,14 @@ pub async fn create_cabin(data: CabinAction, edit: bool)-> Result<String, String
     let create_cabin_result = match cabin_json {
         Ok(cabin_json) => {
             let resp = match edit {
-                true => client.from("cabins").update(&cabin_json).eq("id", &cabin.id.unwrap_or_default().to_string()).execute().await,
+                true => {
+                    client
+                        .from("cabins")
+                        .update(&cabin_json)
+                        .eq("id", &cabin.id.unwrap_or_default().to_string())
+                        .execute()
+                        .await
+                }
                 false => client.from("cabins").insert(&cabin_json).execute().await,
             };
             match resp {
@@ -92,20 +103,20 @@ pub async fn create_cabin(data: CabinAction, edit: bool)-> Result<String, String
                                         all_cabins_query().invalidate_query(AllCabinsKey);
                                     }
                                     Ok(text)
-                                },
+                                }
                                 Err(err) => Err(err.to_string()),
                             }
-                        },
-                        Err(err) => Err(err.to_string())
-                    } 
-                },
+                        }
+                        Err(err) => Err(err.to_string()),
+                    }
+                }
                 Err(err) => Err(err.to_string()),
             }
-        },
+        }
         Err(err) => Err(err.to_string()),
     };
 
-    if let Some(image_file) = image{
+    if let Some(image_file) = image {
         let res = upload_image(image_file).await;
         let res = match res {
             Ok(_) => Ok("Image upload successfully".to_string()),
@@ -119,22 +130,22 @@ pub async fn create_cabin(data: CabinAction, edit: bool)-> Result<String, String
 }
 
 pub async fn upload_image(file: File) -> Result<String, String> {
-    let array_buffer_promise: JsFuture = file
-        .array_buffer()
-        .into();
+    let array_buffer_promise: JsFuture = file.array_buffer().into();
 
     let array_buffer: JsValue = array_buffer_promise
         .await
         .expect("Could not get ArrayBuffer from file");
 
-    let file_u8 = js_sys::Uint8Array
-        ::new(&array_buffer)
-        .to_vec();
+    let file_u8 = js_sys::Uint8Array::new(&array_buffer).to_vec();
 
     let client = reqwest::Client::new();
-    let form= Form::new().part("file", Part::stream(file_u8).file_name(file.name())
-        .mime_str(&file.type_())
-        .map_err(|e| e.to_string())?);
+    let form = Form::new().part(
+        "file",
+        Part::stream(file_u8)
+            .file_name(file.name())
+            .mime_str(&file.type_())
+            .map_err(|e| e.to_string())?,
+    );
 
     let response = client
         .post("http://localhost:3000/upload")
@@ -146,11 +157,14 @@ pub async fn upload_image(file: File) -> Result<String, String> {
         Ok(response) => {
             let text = response.text().await.unwrap_or("".to_string());
             Ok(text)
-        },
+        }
         Err(err) => Err(err.to_string()),
     }
 }
 
 pub fn all_cabins_query() -> QueryScope<AllCabinsKey, Result<Vec<Cabin>, String>> {
-    create_query(move |_| async move { get_cabins().await },  QueryOptions::default())
+    create_query(
+        move |_| async move { get_cabins().await },
+        QueryOptions::default(),
+    )
 }
