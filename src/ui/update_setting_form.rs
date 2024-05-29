@@ -45,8 +45,6 @@ fn SettingForm(setting: Setting) -> impl IntoView {
     let (updating, update_setting_error, update_setting_action) = use_update_setting();
 
     let update_new_setting = move |ev: FocusEvent| {
-        let value = event_target_value(&ev);
-
         let input_el = ev
             .target()
             .and_then(|target| Some(target.dyn_into::<HtmlInputElement>()));
@@ -55,23 +53,57 @@ fn SettingForm(setting: Setting) -> impl IntoView {
             match result {
                 Ok(input_element) => {
                     let id = input_element.id();
+                    match id.as_str() {
+                        "min-nights" => {
+                            if min_booking_length.get().parse::<u32>().unwrap_or_default()
+                                == setting.min_booking_lenght
+                            {
+                                return;
+                            }
+                        }
+                        "max-nights" => {
+                            if max_booking_length.get().parse::<u32>().unwrap_or_default()
+                                == setting.max_booking_length
+                            {
+                                return;
+                            }
+                        }
+                        "max-guests" => {
+                            if max_guests_per_booking
+                                .get()
+                                .parse::<u32>()
+                                .unwrap_or_default()
+                                == setting.max_guests_per_booking
+                            {
+                                return;
+                            }
+                        }
+                        "breakfast-price" => {
+                            if breakfast_price.get().parse::<u32>().unwrap_or_default()
+                                == setting.breakfast_price
+                            {
+                                return;
+                            }
+                        }
+                        _ => return,
+                    }
                 }
                 Err(_) => return,
             }
+
+            let new_setting = Setting {
+                id: None,
+                created_at: None,
+                min_booking_lenght: min_booking_length.get().parse().unwrap_or_default(),
+                max_booking_length: max_booking_length.get().parse().unwrap_or_default(),
+                max_guests_per_booking: max_guests_per_booking.get().parse().unwrap_or_default(),
+                breakfast_price: breakfast_price.get().parse().unwrap_or_default(),
+            };
+
+            update_setting_action.dispatch(new_setting);
         } else {
             return;
         };
-
-        let new_setting = Setting {
-            id: None,
-            created_at: None,
-            min_booking_lenght: min_booking_length.get().parse().unwrap_or_default(),
-            max_booking_length: max_booking_length.get().parse().unwrap_or_default(),
-            max_guests_per_booking: max_guests_per_booking.get().parse().unwrap_or_default(),
-            breakfast_price: breakfast_price.get().parse().unwrap_or_default(),
-        };
-
-        update_setting_action.dispatch(new_setting);
     };
 
     create_effect(move |_| match update_setting_error() {
