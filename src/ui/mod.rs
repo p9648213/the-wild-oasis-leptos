@@ -16,3 +16,4 @@ pub mod sidebar;
 pub mod spinner;
 pub mod text_area;
 pub mod toast;
+pub mod update_setting_form;

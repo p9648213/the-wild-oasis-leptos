@@ -12,7 +12,7 @@ pub fn Form<F>(
     form_type: FormType,
     children: Children,
     on_submit: F,
-    form_ref: NodeRef<html::Form>,
+    #[prop(optional)] form_ref: NodeRef<html::Form>,
 ) -> impl IntoView
 where
     F: Fn(SubmitEvent) + 'static,
