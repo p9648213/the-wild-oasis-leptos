@@ -10,7 +10,10 @@ use crate::{
         toast::ToastType,
     },
 };
+use ev::FocusEvent;
 use leptos::*;
+use wasm_bindgen::JsCast;
+use web_sys::HtmlInputElement;
 
 #[component]
 pub fn UpdateSettingForm() -> impl IntoView {
@@ -41,7 +44,24 @@ fn SettingForm(setting: Setting) -> impl IntoView {
 
     let (updating, update_setting_error, update_setting_action) = use_update_setting();
 
-    let update_new_setting = move |_| {
+    let update_new_setting = move |ev: FocusEvent| {
+        let value = event_target_value(&ev);
+
+        let input_el = ev
+            .target()
+            .and_then(|target| Some(target.dyn_into::<HtmlInputElement>()));
+
+        if let Some(result) = input_el {
+            match result {
+                Ok(input_element) => {
+                    let id = input_element.id();
+                }
+                Err(_) => return,
+            }
+        } else {
+            return;
+        };
+
         let new_setting = Setting {
             id: None,
             created_at: None,

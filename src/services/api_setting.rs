@@ -55,6 +55,7 @@ pub async fn update_setting(setting: Setting) -> Result<String, String> {
                             let body = response.text().await;
                             match body {
                                 Ok(text) => {
+                                    setting_query().set_query_data(SettingKey, Ok(setting));
                                     setting_query().invalidate_query(SettingKey);
                                     Ok(text)
                                 }
