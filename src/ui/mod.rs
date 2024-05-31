@@ -2,6 +2,7 @@ pub mod app_layout;
 pub mod button;
 pub mod cabin_row;
 pub mod cabin_table;
+pub mod confirm_delete;
 pub mod create_cabin_form;
 pub mod file_input;
 pub mod form;

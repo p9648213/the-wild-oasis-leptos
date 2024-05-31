@@ -1,9 +1,9 @@
 use crate::hooks::use_create_cabin::use_create_cabin;
-use crate::hooks::use_delete_cabin::use_delete_cabin;
 use crate::hooks::use_toast::use_toast;
 use crate::model::cabins::Cabin;
 use crate::services::helpers::format_currency;
 use crate::ui::{
+    confirm_delete::ConfirmDeleteCabin,
     create_cabin_form::{CabinAction, CreateCabinForm},
     modal::{Modal, ModalOpen, ModalWindow},
     toast::ToastType,
@@ -15,22 +15,10 @@ use leptos_icons::Icon;
 #[component]
 pub fn CabinRow(cabin: Cabin) -> impl IntoView {
     let create_toast = use_toast();
-
-    let (deleting, delete_error, delete_cabin_by_id) = use_delete_cabin();
     let (creating, create_cabin_error, create_cabin) = use_create_cabin(false);
 
-    let loading = move || {
-        if deleting() == true {
-            return true;
-        } else {
-            if creating() == true {
-                return true;
-            }
-            false
-        }
-    };
-
     let cabin_clone = cabin.clone();
+    let cabin_clone_1 = cabin.clone();
 
     let create_duplicate_cabin = move |_| {
         let new_cabin = Cabin {
@@ -50,22 +38,12 @@ pub fn CabinRow(cabin: Cabin) -> impl IntoView {
         })
     };
 
-    create_effect(move |_| {
-        match delete_error() {
-            Ok(res) => match res {
-                Some(_) => create_toast("Cabin delete successfully", ToastType::Success),
-                None => (),
-            },
-            Err(_) => create_toast("Failed to delete cabin", ToastType::Error),
-        };
-
-        match create_cabin_error() {
-            Ok(res) => match res {
-                Some(_) => create_toast("New cabin succesfully created", ToastType::Success),
-                None => (),
-            },
-            Err(_) => create_toast("Failed to add cabin", ToastType::Error),
-        }
+    create_effect(move |_| match create_cabin_error() {
+        Ok(res) => match res {
+            Some(_) => create_toast("New cabin succesfully created", ToastType::Success),
+            None => (),
+        },
+        Err(_) => create_toast("Failed to add cabin", ToastType::Error),
     });
 
     view! {
@@ -91,7 +69,7 @@ pub fn CabinRow(cabin: Cabin) -> impl IntoView {
             <div class="flex gap-4">
                 <button
                     on:click=create_duplicate_cabin
-                    disabled=loading
+                    disabled=move || creating
                     class="focus:outline-none focus-visible:outline-none"
                 >
                     <Icon class="fill-slate-700" icon=HiSquare2StackSolidLg/>
@@ -101,7 +79,7 @@ pub fn CabinRow(cabin: Cabin) -> impl IntoView {
                     <ModalOpen open_windown_name="edit-cabin">
                         <button
                             on:click=move |_| {}
-                            disabled=loading
+                            disabled=move || creating
                             class="focus:outline-none focus-visible:outline-none"
                         >
                             <Icon class="fill-slate-700" icon=HiPencilSolidLg/>
@@ -112,21 +90,21 @@ pub fn CabinRow(cabin: Cabin) -> impl IntoView {
                     </ModalWindow>
                 </Modal>
 
-            // <Modal>
-            // <ModalOpen open_windown_name="delete-cabin">
-            // <button
-            // class="focus:outline-none focus-visible:outline-none"
-            // // on:click=move |_| delete_cabin_by_id(cabin_delete_clone.id.unwrap_or(0))
-            // on:click=move |_| {}
-            // disabled=loading
-            // >
-            // <Icon class="fill-slate-700" icon=HiTrashSolidLg/>
-            // </button>
-            // </ModalOpen>
-            // <ModalWindow name="delete-cabin">
-            // <div>DELETE</div>
-            // </ModalWindow>
-            // </Modal>
+                <Modal>
+                    <ModalOpen open_windown_name="delete-cabin">
+                        <button
+                            class="focus:outline-none focus-visible:outline-none"
+                            // on:click=move |_| delete_cabin_by_id(cabin_delete_clone.id.unwrap_or(0))
+                            on:click=move |_| {}
+                            disabled=move || creating
+                        >
+                            <Icon class="fill-slate-700" icon=HiTrashSolidLg/>
+                        </button>
+                    </ModalOpen>
+                    <ModalWindow name="delete-cabin">
+                        <ConfirmDeleteCabin id=cabin_clone_1.clone().id.unwrap_or_default()/>
+                    </ModalWindow>
+                </Modal>
             </div>
         </div>
     }
