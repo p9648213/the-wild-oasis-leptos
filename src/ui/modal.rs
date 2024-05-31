@@ -6,10 +6,12 @@ use leptos_icons::Icon;
 pub fn Modal(children: Children) -> impl IntoView {
     let (open_name, set_open_name) = create_signal("");
 
-    provide_context(open_name);
-    provide_context(set_open_name);
+    run_as_child(move || {
+        provide_context(open_name);
+        provide_context(set_open_name);
 
-    view! { <span>{children()}</span> }
+        view! { <span>{children()}</span> }
+    })
 }
 
 #[component]

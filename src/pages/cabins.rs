@@ -19,18 +19,18 @@ pub fn Cabins() -> impl IntoView {
         </Row>
         <Row>
             <CabinTable/>
-        // <div>
-        // <Modal>
-        // <ModalOpen open_windown_name="cabin-form">
-        // <Button disabled=disable on_click=move |_| {}>
-        // "Add new cabin"
-        // </Button>
-        // </ModalOpen>
-        // <ModalWindow name="cabin-form">
-        // <CreateCabinForm/>
-        // </ModalWindow>
-        // </Modal>
-        // </div>
+            <div>
+                <Modal>
+                    <ModalOpen open_windown_name="cabin-form">
+                        <Button disabled=disable on_click=move |_| {}>
+                            "Add new cabin"
+                        </Button>
+                    </ModalOpen>
+                    <ModalWindow name="cabin-form">
+                        <CreateCabinForm/>
+                    </ModalWindow>
+                </Modal>
+            </div>
         </Row>
     }
 }
