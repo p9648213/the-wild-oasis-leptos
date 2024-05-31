@@ -304,3 +304,13 @@ img {
 .file_input::-moz-file-upload-button:hover {
   background-color: var(--color-brand-700);
 }
+
+/* MODAL BUTTON */
+.modal-button svg {
+  width: 2.4rem;
+  height: 2.4rem;
+}
+
+.modal-button svg path {
+  stroke: var(--color-grey-500);
+}

@@ -11,6 +11,7 @@ pub mod heading;
 pub mod input;
 pub mod logo;
 pub mod main_nav;
+pub mod modal;
 pub mod row;
 pub mod sidebar;
 pub mod spinner;

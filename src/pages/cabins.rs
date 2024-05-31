@@ -3,14 +3,14 @@ use crate::ui::{
     cabin_table::CabinTable,
     create_cabin_form::CreateCabinForm,
     heading::{HeaderVariant, Heading},
+    modal::{Modal, ModalOpen, ModalWindow},
     row::{Row, RowVariant},
 };
 use leptos::*;
 
 #[component]
 pub fn Cabins() -> impl IntoView {
-    let (show_form, set_show_form) = create_signal(false);
-    let (disabled, _) = create_signal(false);
+    let (disable, _) = create_signal(false);
 
     view! {
         <Row variant=RowVariant::Horizontal>
@@ -19,15 +19,18 @@ pub fn Cabins() -> impl IntoView {
         </Row>
         <Row>
             <CabinTable/>
-            <Button
-                disabled=disabled
-                on_click=move |_| { set_show_form.update(|value| *value = !*value) }
-            >
-                "Add new cabin"
-            </Button>
-            <Show when=move || show_form.get() == true fallback=move || view! {}>
-                <CreateCabinForm/>
-            </Show>
+        // <div>
+        // <Modal>
+        // <ModalOpen open_windown_name="cabin-form">
+        // <Button disabled=disable on_click=move |_| {}>
+        // "Add new cabin"
+        // </Button>
+        // </ModalOpen>
+        // <ModalWindow name="cabin-form">
+        // <CreateCabinForm/>
+        // </ModalWindow>
+        // </Modal>
+        // </div>
         </Row>
     }
 }

@@ -11,6 +11,7 @@ use crate::ui::{
     input::Input,
     text_area::TextArea,
 };
+use leptos::logging;
 use leptos::*;
 use web_sys::{File, SubmitEvent};
 
@@ -30,6 +31,8 @@ struct DefaultCabinValue {
 
 #[component]
 pub fn CreateCabinForm(#[prop(default = None)] cabin: Option<Cabin>) -> impl IntoView {
+    let set_open_name = use_context::<WriteSignal<&str>>().expect("set_open_name is not provided");
+
     let is_edit_session = match &cabin {
         Some(_) => true,
         None => false,
@@ -186,13 +189,14 @@ pub fn CreateCabinForm(#[prop(default = None)] cabin: Option<Cabin>) -> impl Int
         match form_element.get() {
             Some(form) => form.reset(),
             None => (),
-        }
+        };
         cabin_name.set("".to_string());
         max_capacity.set("".to_string());
         regular_price.set("".to_string());
         discount.set("".to_string());
         description.set("".to_string());
         image.set(None);
+        set_open_name("");
     };
 
     create_effect(move |_| {
@@ -223,11 +227,11 @@ pub fn CreateCabinForm(#[prop(default = None)] cabin: Option<Cabin>) -> impl Int
                     Some(form) => form.reset(),
                     None => (),
                 };
-                clearForm();
                 match is_edit_session {
                     true => create_toast("Cabin succesfully edited", ToastType::Success),
                     false => create_toast("New cabin succesfully created", ToastType::Success),
-                }
+                };
+                clearForm();
             }
             None => (),
         },
@@ -235,7 +239,8 @@ pub fn CreateCabinForm(#[prop(default = None)] cabin: Option<Cabin>) -> impl Int
     });
 
     view! {
-        <Form form_ref=form_element form_type=FormType::NoneModal on_submit=on_submit>
+        <Form form_ref=form_element on_submit=on_submit form_type=FormType::Modal>
+
             <FormRow label="Cabin name" error=cabin_name_error id="name">
                 <Input input_type="text" id="name" disabled=creating value=cabin_name/>
             </FormRow>

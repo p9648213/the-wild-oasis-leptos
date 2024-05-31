@@ -3,16 +3,17 @@ use crate::hooks::use_delete_cabin::use_delete_cabin;
 use crate::hooks::use_toast::use_toast;
 use crate::model::cabins::Cabin;
 use crate::services::helpers::format_currency;
-use crate::ui::create_cabin_form::CabinAction;
-use crate::ui::{create_cabin_form::CreateCabinForm, toast::ToastType};
+use crate::ui::{
+    create_cabin_form::{CabinAction, CreateCabinForm},
+    modal::{Modal, ModalOpen, ModalWindow},
+    toast::ToastType,
+};
 use icondata::{HiPencilSolidLg, HiSquare2StackSolidLg, HiTrashSolidLg};
 use leptos::*;
 use leptos_icons::Icon;
 
 #[component]
 pub fn CabinRow(cabin: Cabin) -> impl IntoView {
-    let (show_edit_form, set_show_edit_form) = create_signal(false);
-
     let create_toast = use_toast();
 
     let (deleting, delete_error, delete_cabin_by_id) = use_delete_cabin();
@@ -96,25 +97,37 @@ pub fn CabinRow(cabin: Cabin) -> impl IntoView {
                     <Icon class="fill-slate-700" icon=HiSquare2StackSolidLg/>
                 </button>
 
-                <button
-                    on:click=move |_| set_show_edit_form.update(|show| *show = !*show)
-                    disabled=loading
-                    class="focus:outline-none focus-visible:outline-none"
-                >
-                    <Icon class="fill-slate-700" icon=HiPencilSolidLg/>
-                </button>
+                <Modal>
+                    <ModalOpen open_windown_name="edit-cabin">
+                        <button
+                            on:click=move |_| {}
+                            disabled=loading
+                            class="focus:outline-none focus-visible:outline-none"
+                        >
+                            <Icon class="fill-slate-700" icon=HiPencilSolidLg/>
+                        </button>
+                    </ModalOpen>
+                    <ModalWindow name="edit-cabin">
+                        <CreateCabinForm cabin=Some(cabin.clone())/>
+                    </ModalWindow>
+                </Modal>
 
-                <button
-                    class="focus:outline-none focus-visible:outline-none"
-                    on:click=move |_| delete_cabin_by_id(cabin.id.unwrap_or(0))
-                    disabled=loading
-                >
-                    <Icon class="fill-slate-700" icon=HiTrashSolidLg/>
-                </button>
+            // <Modal>
+            // <ModalOpen open_windown_name="delete-cabin">
+            // <button
+            // class="focus:outline-none focus-visible:outline-none"
+            // // on:click=move |_| delete_cabin_by_id(cabin_delete_clone.id.unwrap_or(0))
+            // on:click=move |_| {}
+            // disabled=loading
+            // >
+            // <Icon class="fill-slate-700" icon=HiTrashSolidLg/>
+            // </button>
+            // </ModalOpen>
+            // <ModalWindow name="delete-cabin">
+            // <div>DELETE</div>
+            // </ModalWindow>
+            // </Modal>
             </div>
         </div>
-        <Show when=move || show_edit_form.get() == true fallback=move || view! {}>
-            <CreateCabinForm cabin=Some(cabin.clone())/>
-        </Show>
     }
 }
