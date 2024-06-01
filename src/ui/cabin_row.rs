@@ -6,6 +6,7 @@ use crate::ui::{
     confirm_delete::ConfirmDeleteCabin,
     create_cabin_form::{CabinAction, CreateCabinForm},
     modal::{Modal, ModalOpen, ModalWindow},
+    table::TableRow,
     toast::ToastType,
 };
 use icondata::{HiPencilSolidLg, HiSquare2StackSolidLg, HiTrashSolidLg};
@@ -47,7 +48,7 @@ pub fn CabinRow(cabin: Cabin) -> impl IntoView {
     });
 
     view! {
-        <div class="grid grid-cols-[0.6fr_1.8fr_2.2fr_1fr_1fr_1fr] gap-x-[2.4rem] items-center p-[1.4rem_2.4rem] [&:not(:last-child)]:border-b [&:not(:last-child)]:border-solid [&:not(:last-child)]:border-[var(--color-grey-100)]">
+        <TableRow>
             <img
                 class="block w-[6.4rem] aspect-[3/2] object-cover object-center scale-[1.5] translate-x-[-7px]"
                 src=cabin.clone().image
@@ -69,7 +70,7 @@ pub fn CabinRow(cabin: Cabin) -> impl IntoView {
             <div class="flex gap-4">
                 <button
                     on:click=create_duplicate_cabin
-                    disabled=move || creating
+                    disabled=creating
                     class="focus:outline-none focus-visible:outline-none"
                 >
                     <Icon class="fill-slate-700" icon=HiSquare2StackSolidLg/>
@@ -79,7 +80,7 @@ pub fn CabinRow(cabin: Cabin) -> impl IntoView {
                     <ModalOpen open_windown_name="edit-cabin">
                         <button
                             on:click=move |_| {}
-                            disabled=move || creating
+                            disabled=creating
                             class="focus:outline-none focus-visible:outline-none"
                         >
                             <Icon class="fill-slate-700" icon=HiPencilSolidLg/>
@@ -96,7 +97,7 @@ pub fn CabinRow(cabin: Cabin) -> impl IntoView {
                             class="focus:outline-none focus-visible:outline-none"
                             // on:click=move |_| delete_cabin_by_id(cabin_delete_clone.id.unwrap_or(0))
                             on:click=move |_| {}
-                            disabled=move || creating
+                            disabled=creating
                         >
                             <Icon class="fill-slate-700" icon=HiTrashSolidLg/>
                         </button>
@@ -106,6 +107,6 @@ pub fn CabinRow(cabin: Cabin) -> impl IntoView {
                     </ModalWindow>
                 </Modal>
             </div>
-        </div>
+        </TableRow>
     }
 }

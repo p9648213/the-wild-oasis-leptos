@@ -16,6 +16,7 @@ pub mod modal;
 pub mod row;
 pub mod sidebar;
 pub mod spinner;
+pub mod table;
 pub mod text_area;
 pub mod toast;
 pub mod update_setting_form;

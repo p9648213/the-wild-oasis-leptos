@@ -27,8 +27,6 @@ pub fn ModalWindow(children: ChildrenFn, name: &'static str) -> impl IntoView {
     let set_open_name = use_context::<WriteSignal<&str>>().expect("set_open_name is not provided");
     let children = store_value(children);
 
-    create_effect(move |_| leptos::logging::log!("{:#?} {}", open_name.get(), name));
-
     view! {
         <Portal>
             <Show when=move || { open_name.get() == name }>
