@@ -1,4 +1,3 @@
-use crate::services::api_cabins::{all_cabins_query, AllCabinsKey};
 use crate::{
     pages::{
         account::Account, bookings::Bookings, cabins::Cabins, dashboard::Dashboard, login::Login,

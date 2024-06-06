@@ -11,7 +11,6 @@ use crate::ui::{
     input::Input,
     text_area::TextArea,
 };
-use leptos::logging;
 use leptos::*;
 use web_sys::{File, SubmitEvent};
 

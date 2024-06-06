@@ -323,3 +323,25 @@ img {
 .row-table:not(:last-child) {
   border-bottom: 1px solid var(--color-grey-100);
 }
+
+/* TOGGLE ICON */
+.toggle-icon svg {
+  width: 2.4rem;
+  height: 2.4rem;
+}
+
+.toggle-icon svg path {
+  stroke: var(--color-grey-600);
+  transition: all 0.3s;
+}
+
+/* MENU BUTTON */
+.menu-button svg {
+  width: 1.6rem;
+  height: 1.6rem;
+}
+
+.menu-button svg path {
+  stroke: var(--color-grey-400);
+  transition: all 0.3s;
+}
