@@ -21,7 +21,7 @@ args = [
     "--dist",
     "release",
     "--public-url",
-    "/leptrun/",
+    "/",
 ]
 
 [tasks.update-pages]

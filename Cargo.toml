@@ -4,16 +4,13 @@ version = "0.1.0"
 edition = "2021"
 
 [dependencies]
-leptos = { version = "0.6.11", features = ["csr", "nightly"] }
-leptos_meta = { version = "0.6.11", features = ["csr"] }
-leptos_router = { version = "0.6.11", features = ["csr"] }
+leptos = { version = "0.6.12", features = ["csr", "nightly"] }
+leptos_meta = { version = "0.6.12", features = ["csr"] }
+leptos_router = { version = "0.6.12", features = ["csr"] }
 log = "0.4.21"
 gloo-net = { version = "0.5.0", features = ["http"] }
 serde = { version = "1.0", features = ["derive"] }
 serde_json = { version = "1.0", default-features = false, features = ["alloc"] }
-
-
-# dependencies for client (enable when csr or hydrate set)
 wasm-bindgen = { version = "0.2.92" }
 console_log = { version = "1.0.0" }
 console_error_panic_hook = { version = "0.1.7" }
@@ -21,7 +18,7 @@ tailwind_fuse = { version = "0.3.0", features = ["variant"] }
 leptos_icons = "0.3.1"
 icondata = "0.3.1"
 postgrest = "1.6.0"
-num-format = "0.4.0"
+num-format = "0.4.4"
 leptos_query = { version = "0.5.3", features = ["csr"] }
 leptos_query_devtools = { version = "0.1.3", features = ["csr"] }
 leptos_toaster = "0.1.7"
@@ -30,3 +27,12 @@ reqwest = { version = "0.12.4", features = ["multipart"] }
 web-sys = "0.3.69"
 wasm-bindgen-futures = "0.4.42"
 js-sys = "0.3.69"
+
+# [profile.wasm-release]
+# inherits = "release"
+# opt-level = 'z'
+# lto = true
+# codegen-units = 1
+
+# [package.metadata.leptos]
+# lib-profile-release = "wasm-release"
