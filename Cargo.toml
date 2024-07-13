@@ -28,11 +28,11 @@ web-sys = "0.3.69"
 wasm-bindgen-futures = "0.4.42"
 js-sys = "0.3.69"
 
-# [profile.wasm-release]
-# inherits = "release"
-# opt-level = 'z'
-# lto = true
-# codegen-units = 1
+[profile.wasm-release]
+inherits = "release"
+opt-level = 'z'
+lto = true
+codegen-units = 1
 
-# [package.metadata.leptos]
-# lib-profile-release = "wasm-release"
+[package.metadata.leptos]
+lib-profile-release = "wasm-release"
